@@ -18,22 +18,27 @@
 
 # Inherit from those products. Most specific first.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
+$(call inherit-product-if-exists, $(SRC_TARGET_DIR)/product/embedded.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
 
-# Installs gsi keys into ramdisk, to boot a developer GSI with verified boot.
-$(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_keys.mk)
+# Inherit any OrangeFox-specific settings
+$(call inherit-product-if-exists, $(DEVICE_PATH)/fox_rosemary.mk)
+
+# Inherit some common stuff.
+$(call inherit-product, vendor/twrp/config/common.mk)
 
 # Inherit from rosemary device
 $(call inherit-product, device/redmi/rosemary/device.mk)
-
-# Inherit some common TWRP stuff
-$(call inherit-product, vendor/twrp/config/common.mk)
 
 # Device identifier. This must come after all inclusions
 PRODUCT_DEVICE := rosemary
 PRODUCT_NAME := twrp_rosemary
 PRODUCT_BRAND := Redmi
-PRODUCT_MODEL := rosemary
+PRODUCT_MODEL := Note 10S 
 PRODUCT_MANUFACTURER := Xiaomi
 PRODUCT_RELEASE_NAME := Redmi Note 10S
 
