@@ -23,63 +23,84 @@ FDEVICE="rosemary"
 #set -o xtrace
 
 fox_get_target_device() {
-	local chkdev=$(echo "$BASH_SOURCE" | grep -w $FDEVICE)
-	if [ -n "$chkdev" ]; then
-		FOX_BUILD_DEVICE="$FDEVICE"
-	else
-		chkdev=$(set | grep BASH_ARGV | grep -w $FDEVICE)
-		[ -n "$chkdev" ] && FOX_BUILD_DEVICE="$FDEVICE"
-	fi
+local chkdev=$(echo "$BASH_SOURCE" | grep -w \"$FDEVICE\")
+   if [ -n "$chkdev" ]; then 
+      FOX_BUILD_DEVICE="$FDEVICE"
+   else
+      chkdev=$(set | grep BASH_ARGV | grep -w \"$FDEVICE\")
+      [ -n "$chkdev" ] && FOX_BUILD_DEVICE="$FDEVICE"
+   fi
 }
 
-if [ -z "$1" ] && [ -z "$FOX_BUILD_DEVICE" ]; then
-	fox_get_target_device
+if [ -z "$1" -a -z "$FOX_BUILD_DEVICE" ]; then
+   fox_get_target_device
 fi
+
+if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
 
 # Dirty Fix: Only declare orangefox vars when needed
 if [ -f "$(gettop)/bootable/recovery/orangefox.cpp" ]; then
 	echo -e "\x1b[96m[INFO]: Setting up OrangeFox build vars for rosemary...\x1b[m"
 	if [ "$1" = "$FDEVICE" ] || [  "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
+		
+
 		# Version / Maintainer infos
-		export OF_MAINTAINER="Woomymy"
-		export FOX_VERSION=R11.1_1
-		export FOX_BUILD_TYPE="Beta"
+		export FOX_VERSION="R11.1_1"
+		export OF_MAINTAINER= lberatl
+		export FOX_BUILD_TYPE="Stable"
+
 
 		# Device info
-		export OF_AB_DEVICE=1
-		export OF_VIRTUAL_AB_DEVICE=1
+		export FOX_AB_DEVICE=1 
+		export FOX_VIRTUAL_AB_DEVICE=1
 		export TARGET_DEVICE_ALT="secret, maltose"
 		
 		# OTA / DM-Verity / Encryption
 		export OF_DISABLE_MIUI_OTA_BY_DEFAULT=1
 		export OF_FIX_OTA_UPDATE_MANUAL_FLASH_ERROR=1
-		
 		export OF_DONT_PATCH_ON_FRESH_INSTALLATION=1
 		export OF_DONT_PATCH_ENCRYPTED_DEVICE=1
 		export OF_KEEP_DM_VERITY_FORCED_ENCRYPTION=1
-		export OF_SKIP_FBE_DECRYPTION_SDKVERSION=34 # Don't try to decrypt A14(?)
+		export OF_SKIP_FBE_DECRYPTION_SDKVERSION=34 
 		export OF_SKIP_DECRYPTED_ADOPTED_STORAGE=1
 
 		# Display / Leds
-		export OF_SCREEN_H="2400"
-		export OF_STATUS_H="100"
-		export OF_STATUS_INDENT_LEFT=48
-		export OF_STATUS_INDENT_RIGHT=48
-		export OF_HIDE_NOTCH=1
-		export OF_CLOCK_POS=1 # left and right clock positions available
+
 		export OF_USE_GREEN_LED=0
-		export OF_FL_PATH1="/tmp/flashlight" # See /init.recovery.mt6785.rc for more information
+		export OF_FLASHLIGHT_ENABLE := 1
+		export OF_FL_PATH1="/sys/devices/platform/flashlights_mt6360/torch_brightness"
+		
+		# Screen Settings
+		export OF_SCREEN_H=2400
+		export OF_STATUS_H=110
+		export OF_STATUS_INDENT_LEFT=52
+		export OF_STATUS_INDENT_RIGHT=52
+		export OF_CLOCK_POS=1
+		export OF_HIDE_NOTCH=0
+		export OF_ALLOW_DISABLE_NAVBAR=0
+
+
 
 		# Other OrangeFox configs
 		export OF_ENABLE_LPTOOLS=1
-		export OF_ALLOW_DISABLE_NAVBAR=0
-        export OF_QUICK_BACKUP_LIST="/boot;/data;"
+                export OF_QUICK_BACKUP_LIST="/boot;/data;"
 		export FOX_BUGGED_AOSP_ARB_WORKAROUND="1546300800" # Tue Jan 1 2019 00:00:00 GMT
 		export FOX_DELETE_AROMAFM=1
 		export FOX_USE_SPECIFIC_MAGISK_ZIP="$(gettop)/device/redmi/rosemary/Magisk/Magisk.zip"
 
-        export BUNDLED_MAGISK_VER="25.2"
-        export BUNDLED_MAGISK_SUM="0bdc32918b6ea502dca769b1c7089200da51ea1def170824c2812925b426d509" # Sha256 sum of the prebuilt magisk
+  		export FOX_USE_BASH_SHELL=1
+		export FOX_ASH_IS_BASH=1
+		export FOX_USE_NANO_EDITOR=1
+		export FOX_USE_TAR_BINARY=1
+		export FOX_USE_ZIP_BINARY=1
+		export FOX_USE_SED_BINARY=1
+		export FOX_USE_XZ_UTILS=1
+
+      	
+
+		  export BUNDLED_MAGISK_VER="27"
+        export BUNDLED_MAGISK_SUM="f511bd33d3242911d05b0939f910a3133ef2ba0e0ff1e098128f9f3cd0c16610
+" # Sha256 sum of the prebuilt magisk
 
             if [ -f "${FOX_USE_SPECIFIC_MAGISK_ZIP}" -a "$(sha256sum "${FOX_USE_SPECIFIC_MAGISK_ZIP}" 2>/dev/null | awk '{print $1}')" != "${BUNDLED_MAGISK_SUM}" ]
             then
